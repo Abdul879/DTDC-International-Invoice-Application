@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DTDC International Invoice Creator</title>
+<style>
+:root{--red:#c8102e;--deep:#252a34;--muted:#657080;--line:#d9dee7;--bg:#f3f5f8;--gold:#f4c542}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--deep)}
+header{background:#fff;border-bottom:4px solid var(--red);padding:18px 4%;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px}.logo{font-size:30px;font-weight:900;letter-spacing:-2px;color:var(--red);font-style:italic}.logo span{color:#292d35}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:1.7px;margin-top:3px}
+header h1{font-size:20px;margin:0;text-align:right;letter-spacing:.6px}
+main{max-width:1440px;margin:24px auto;padding:0 18px;display:grid;grid-template-columns:minmax(320px,430px) minmax(0,1fr);gap:22px;align-items:start}
+.panel,.paper{background:#fff;border:1px solid #e2e6ed;border-radius:10px;box-shadow:0 5px 20px #18243a0a}
+.panel{padding:20px;max-height:calc(100vh - 130px);overflow:auto}.panel h2{font-size:16px;margin:0 0 15px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.section{margin-bottom:22px}.section h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin:0 0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:10px}.field label{display:block;font-size:11px;font-weight:700;color:#596474;margin-bottom:5px}
+.phone-row{display:grid;grid-template-columns:minmax(118px,42%) minmax(0,1fr);gap:6px}.phone-row select,.phone-row input{min-width:0}\ninput,textarea,select{width:100%;border:1px solid #cfd5df;border-radius:5px;padding:9px 10px;font:13px Arial;color:var(--deep);background:#fff;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 2px #c8102e12}textarea{resize:vertical;min-height:65px}
+.items-head,.item-row{display:grid;grid-template-columns:1fr 62px 78px 80px 28px;gap:5px;align-items:center}.items-head{font-size:10px;color:var(--muted);font-weight:bold;margin-bottom:6px}.item-row{margin-bottom:7px}.item-row input{padding:8px 6px;font-size:12px}.item-row .amount{font-size:12px;text-align:right;font-weight:bold}
+.btn{border:0;border-radius:5px;padding:10px 14px;font-weight:bold;cursor:pointer;font-size:12px}.btn-red{background:var(--red);color:white}.btn-dark{background:#29313d;color:white}.btn-light{background:#eef1f5;color:#303947}.btn-add{margin-top:6px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.preview-wrap{min-width:0}.preview-toolbar{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px;color:var(--muted);font-size:12px}.paper{padding:34px 38px;max-width:900px;margin:0 auto;min-height:1050px;border-radius:2px;box-shadow:0 8px 30px #18243a12}
+.invoice-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--red);padding-bottom:18px;margin-bottom:18px}.invoice-brand{display:flex;align-items:center;gap:12px}.invoice-brand .logo{font-size:38px}.invoice-brand .tag{font-size:9px;letter-spacing:1.5px;color:#5d6674;line-height:1.5}.invoice-title{text-align:right}.invoice-title h2{margin:0;font-size:23px;letter-spacing:1.5px}.invoice-title p{margin:6px 0 0;color:var(--muted);font-size:10px;letter-spacing:1px}
+.meta{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--line);margin-bottom:14px}.meta div{padding:9px 11px;border-right:1px solid var(--line);font-size:11px}.meta div:last-child{border:0}.meta b{display:block;color:#687384;text-transform:uppercase;font-size:9px;letter-spacing:.6px;margin-bottom:5px}.parties{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);margin-bottom:14px}.party{padding:13px 15px;min-height:155px}.party+ .party{border-left:1px solid var(--line)}.eyebrow{font-size:10px;font-weight:bold;color:var(--red);letter-spacing:1px;margin-bottom:10px}.party .name{font-weight:bold;font-size:13px;margin-bottom:5px}.party p{white-space:pre-line;font-size:11px;line-height:1.55;margin:0}
+.ship-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);margin-bottom:18px}.ship-grid div{padding:9px 10px;border-right:1px solid var(--line);font-size:10px;min-height:48px}.ship-grid div:last-child{border:0}.ship-grid b{display:block;color:#687384;font-size:8px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
+table{width:100%;border-collapse:collapse;font-size:11px}th{background:#f2f4f7;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:.5px;color:#4d5868;padding:10px 8px;border:1px solid var(--line)}td{padding:11px 8px;border:1px solid var(--line);vertical-align:top}td.num,th.num{text-align:right}.totals{display:flex;justify-content:flex-end;margin-top:0}.totals table{width:280px}.totals td{padding:9px 10px}.grand td{font-weight:bold;font-size:13px;background:#f7f8fa}
+.words{border:1px solid var(--line);padding:11px 12px;font-size:10px;margin-top:15px}.words b{color:#687384;text-transform:uppercase;font-size:9px;display:block;margin-bottom:5px}.declaration{border:1px solid var(--line);padding:12px;margin-top:12px;font-size:10px;line-height:1.5}.declaration b{display:block;text-transform:uppercase;color:#687384;font-size:9px;letter-spacing:.5px;margin-bottom:6px}.sign{display:flex;justify-content:space-between;margin-top:38px;font-size:10px}.sign div{border-top:1px solid #8b93a0;width:42%;padding-top:7px}.sign #outSignatory{display:inline-block;margin-top:5px;font-family:"Brush Script MT","Segoe Script","Lucida Handwriting",cursive;font-size:28px;font-style:italic;font-weight:500;line-height:1.2;color:#202633}.foot{border-top:1px solid var(--line);margin-top:28px;padding-top:9px;text-align:center;font-size:8px;color:#78818e;letter-spacing:.5px}
+@media(max-width:950px){main{grid-template-columns:1fr}.panel{max-height:none}.paper{padding:24px;min-height:auto}}
+@media(max-width:560px){.paper{padding:15px}.meta{grid-template-columns:1fr 1fr}.meta div:nth-child(2){border-right:0}.meta div:last-child{grid-column:span 2;border-top:1px solid var(--line)}.ship-grid{grid-template-columns:1fr 1fr}.ship-grid div:nth-child(2){border-right:0}.ship-grid div:nth-child(n+3){border-top:1px solid var(--line)}.grid2{grid-template-columns:1fr}.items-head,.item-row{grid-template-columns:minmax(90px,1fr) 45px 58px 65px 22px}.invoice-title h2{font-size:16px}.invoice-brand .logo{font-size:29px}}
+@media print{
+ @page{size:A4;margin:0}
+ html,body{width:210mm;margin:0!important;padding:0!important;background:white!important}
+ body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .no-print,header,.panel,.preview-toolbar{display:none!important}
+ main{display:block;width:210mm;margin:0!important;padding:0!important}
+ .preview-wrap{width:100%;margin:0;padding:0}
+ .paper{box-sizing:border-box;width:210mm;max-width:none;min-height:0;margin:0!important;padding:12mm!important;border:0;border-radius:0;box-shadow:none}
+ .invoice-top{margin-top:0}
+}
+.logo img {
+  height: 50px;       /* Matches the height of your two lines of tagline text */
+  width: auto;        /* Keeps the logo from stretching or squishing */
+  display: block;     /* Removes extra bottom margin */
+}
+</style>
+</head>
+<body>
+<header class="no-print">
+  <div class="brand">
+    <div class="logo">
+      <img src="DTDC_Logo.jpeg" alt="DTDC Logo">
+    </div>
+    <div>
+      <small>DELIVERING YOUR PROMISES</small>
+      <small>INTERNATIONAL SHIPPING</small>
+    </div>
+  </div>
+  <h1>INTERNATIONAL INVOICE CREATOR</h1>
+</header>
+<main>
+ <section class="panel no-print">
+  <h2>Invoice details</h2>
+  <div class="section">
+   <h3>Invoice information</h3>
+   <div class="grid2">
+    <div class="field"><label>Invoice number</label><input id="invoiceNo" value="20260020"></div>
+    <div class="field"><label>Invoice date</label><input id="invoiceDate" type="date"></div>
+    <div class="field"><label>Exporter's reference</label><input id="exportRef" placeholder="Optional"></div>
+    <div class="field"><label>Other reference</label><input id="otherRef" value="35587669880"></div>
+   </div>
+  </div>
+  <div class="section">
+   <h3>Sender / Exporter</h3>
+   <div class="field"><label>Name and address</label><textarea id="sender">Tatishetty Nikhil Sai
+1-43/3 Bharat Nagar Colony
+Kismatpur – 500030</textarea></div>
+   <div class="field"><label>Phone</label><div class="phone-row"><select id="senderPhoneCode" aria-label="Sender country calling code"></select><input id="senderPhone" type="tel" value="8790022286" placeholder="Phone number" aria-label="Sender phone number"></div></div>
+  </div>
+  <div class="section">
+   <h3>Receiver / Consignee</h3>
+   <div class="field"><label>Name and address</label><textarea id="receiver">Uma Nadipalli
+6708 Denali DR, Plano,
+Texas, ZIP Code 75023
+USA</textarea></div>
+   <div class="grid2">
+    <div class="field"><label>Phone</label><div class="phone-row"><select id="receiverPhoneCode" aria-label="Receiver country calling code"></select><input id="receiverPhone" type="tel" value="(513) 460-3737" placeholder="Phone number" aria-label="Receiver phone number"></div></div>
+    <div class="field"><label>Buyer ID / reference</label><input id="buyerRef" value="3027 3480 2536"></div>
+   </div>
+  </div>
+  <div class="section">
+   <h3>Shipment details</h3>
+   <div class="grid2">
+    <div class="field"><label>Country of origin</label><input id="origin" value="INDIA"></div>
+    <div class="field"><label>Final destination</label><input id="destination" value="USA"></div>
+    <div class="field"><label>Port of loading</label><input id="loading" value="INDIA"></div>
+    <div class="field"><label>Port of discharge</label><input id="discharge" placeholder="Enter port"></div>
+    <div class="field"><label>Vessel / flight no.</label><input id="vessel" placeholder="Optional"></div>
+    <div class="field"><label>Final destination city</label><input id="finalDest" value="USA"></div>
+   </div>
+  </div>
+  <div class="section">
+   <h3>Goods / line items</h3>
+   <div class="items-head"><span>Description</span><span>Qty</span><span>Rate</span><span>Amount</span><span></span></div>
+   <div id="items"></div>
+   <button class="btn btn-light btn-add" type="button" onclick="addItem()">+ Add item</button>
+  </div>
+  <div class="section">
+   <h3>Declaration</h3>
+   <div class="field"><label>Currency</label><select id="currency"><option value="INR">INR – Indian Rupee</option><option value="USD">USD – US Dollar</option><option value="EUR">EUR – Euro</option><option value="GBP">GBP – Pound Sterling</option></select></div>
+   <div class="field"><label>Amount in words</label><input id="amountWords" value="" placeholder="Automatically generated from invoice total" readonly></div>
+   <div class="field"><label>Customs / shipment declaration</label><textarea id="declaration">We are sending all the above-mentioned items to USA.
+There is no commercial value; however, the value for customs purpose is INR 2,000.00.</textarea></div>
+   <div class="field"><label>Authorized signatory</label><input id="signatory" placeholder="Name / designation"></div>
+  </div>
+  <div class="actions">
+   <button class="btn btn-red" onclick="window.print()">Print / Save PDF</button>
+   <button class="btn btn-dark" onclick="resetForm()">Reset sample</button>
+  </div>
+ </section>
+
+ <section class="preview-wrap">
+  <div class="preview-toolbar no-print"><span>LIVE INVOICE PREVIEW · A4 layout</span><button class="btn btn-red" onclick="window.print()">Print invoice</button></div>
+  <article class="paper" id="invoice">
+   <div class="invoice-top">
+    <div class="invoice-brand"><div class="logo">
+      <img src="DTDC_Logo.jpeg" alt="DTDC Logo">
+    </div>
+	<div class="tag">DELIVERING YOUR PROMISES<br>INTERNATIONAL COURIER & CARGO</div></div>
+    <div class="invoice-title"><h2>INVOICE</h2><p>INTERNATIONAL SHIPMENT / CUSTOMS DECLARATION</p></div>
+   </div>
+   <div class="meta">
+    <div><b>DTDC invoice no.</b><span data-out="invoiceNo"></span></div>
+    <div><b>Invoice date</b><span data-out="invoiceDate"></span></div>
+    <div><b>Exporter's reference</b><span data-out="exportRef"></span></div>
+    <div><b>Other reference(s)</b><span data-out="otherRef"></span></div>
+    <div><b>Currency</b><span data-out="currency"></span></div>
+    <div><b>Document</b>International invoice</div>
+   </div>
+   <div class="parties">
+    <div class="party"><div class="eyebrow">FROM / EXPORTER</div><div class="name" id="outSenderName"></div><p id="outSender"></p><p id="outSenderPhone"></p></div>
+    <div class="party"><div class="eyebrow">TO / CONSIGNEE</div><div class="name" id="outReceiverName"></div><p id="outReceiver"></p><p id="outReceiverPhone"></p></div>
+   </div>
+   <div class="ship-grid">
+    <div><b>Country of origin</b><span data-out="origin"></span></div><div><b>Country of final destination</b><span data-out="destination"></span></div><div><b>Port of loading</b><span data-out="loading"></span></div><div><b>Port of discharge</b><span data-out="discharge"></span></div>
+    <div><b>Vessel / flight no.</b><span data-out="vessel"></span></div><div><b>Final destination</b><span data-out="finalDest"></span></div><div><b>Buyer (If other than consignee):</b><span data-out="buyerRef"></span></div><div><b>Shipment type</b>International</div>
+   </div>
+   <table>
+    <thead><tr><th style="width:48%">No. &amp; kind of packages / goods description</th><th class="num">Quantity</th><th class="num">Rate</th><th class="num">Amount</th></tr></thead>
+    <tbody id="outItems"></tbody>
+   </table>
+   <div class="totals"><table><tr><td>Subtotal</td><td class="num" id="subtotal"></td></tr><tr class="grand"><td>TOTAL</td><td class="num" id="total"></td></tr></table></div>
+   <div class="words"><b>Amount in words</b><span id="outWords"></span></div>
+   <div class="declaration"><b>Declaration</b><span id="outDeclaration"></span></div>
+   <div class="sign"><div>Authorized signatory<br><span id="outSignatory"></span></div></div>
+   <div class="foot">DTDC INTERNATIONAL SHIPPING</div>
+  </article>
+ </section>
+</main>
+<script>
+const ids=['invoiceNo','invoiceDate','exportRef','otherRef','sender','senderPhone','receiver','receiverPhone','buyerRef','origin','destination','loading','discharge','vessel','finalDest','currency','amountWords','declaration','signatory'];
+const defaults={};
+const countryCallingCodes = `AF|Afghanistan|+93
+AX|Åland Islands|+358
+AL|Albania|+355
+DZ|Algeria|+213
+AS|American Samoa|+1
+AD|Andorra|+376
+AO|Angola|+244
+AI|Anguilla|+1
+AQ|Antarctica|+672
+AG|Antigua and Barbuda|+1
+AR|Argentina|+54
+AM|Armenia|+374
+AW|Aruba|+297
+AU|Australia|+61
+AT|Austria|+43
+AZ|Azerbaijan|+994
+BS|Bahamas|+1
+BH|Bahrain|+973
+BD|Bangladesh|+880
+BB|Barbados|+1
+BY|Belarus|+375
+BE|Belgium|+32
+BZ|Belize|+501
+BJ|Benin|+229
+BM|Bermuda|+1
+BT|Bhutan|+975
+BO|Bolivia|+591
+BQ|Bonaire, Sint Eustatius and Saba|+599
+BA|Bosnia and Herzegovina|+387
+BW|Botswana|+267
+BR|Brazil|+55
+IO|British Indian Ocean Territory|+246
+BN|Brunei|+673
+BG|Bulgaria|+359
+BF|Burkina Faso|+226
+BI|Burundi|+257
+CV|Cabo Verde|+238
+KH|Cambodia|+855
+CM|Cameroon|+237
+CA|Canada|+1
+KY|Cayman Islands|+1
+CF|Central African Republic|+236
+TD|Chad|+235
+CL|Chile|+56
+CN|China|+86
+CX|Christmas Island|+61
+CC|Cocos (Keeling) Islands|+61
+CO|Colombia|+57
+KM|Comoros|+269
+CG|Congo|+242
+CD|Congo, Democratic Republic of the|+243
+CK|Cook Islands|+682
+CR|Costa Rica|+506
+CI|Côte d’Ivoire|+225
+HR|Croatia|+385
+CU|Cuba|+53
+CW|Curaçao|+599
+CY|Cyprus|+357
+CZ|Czechia|+420
+DK|Denmark|+45
+DJ|Djibouti|+253
+DM|Dominica|+1
+DO|Dominican Republic|+1
+EC|Ecuador|+593
+EG|Egypt|+20
+SV|El Salvador|+503
+GQ|Equatorial Guinea|+240
+ER|Eritrea|+291
+EE|Estonia|+372
+SZ|Eswatini|+268
+ET|Ethiopia|+251
+FK|Falkland Islands|+500
+FO|Faroe Islands|+298
+FJ|Fiji|+679
+FI|Finland|+358
+FR|France|+33
+GF|French Guiana|+594
+PF|French Polynesia|+689
+GA|Gabon|+241
+GM|Gambia|+220
+GE|Georgia|+995
+DE|Germany|+49
+GH|Ghana|+233
+GI|Gibraltar|+350
+GR|Greece|+30
+GL|Greenland|+299
+GD|Grenada|+1
+GP|Guadeloupe|+590
+GU|Guam|+1
+GT|Guatemala|+502
+GG|Guernsey|+44
+GN|Guinea|+224
+GW|Guinea-Bissau|+245
+GY|Guyana|+592
+HT|Haiti|+509
+HN|Honduras|+504
+HK|Hong Kong|+852
+HU|Hungary|+36
+IS|Iceland|+354
+IN|India|+91
+ID|Indonesia|+62
+IR|Iran|+98
+IQ|Iraq|+964
+IE|Ireland|+353
+IM|Isle of Man|+44
+IL|Israel|+972
+IT|Italy|+39
+JM|Jamaica|+1
+JP|Japan|+81
+JE|Jersey|+44
+JO|Jordan|+962
+KZ|Kazakhstan|+7
+KE|Kenya|+254
+KI|Kiribati|+686
+XK|Kosovo|+383
+KW|Kuwait|+965
+KG|Kyrgyzstan|+996
+LA|Laos|+856
+LV|Latvia|+371
+LB|Lebanon|+961
+LS|Lesotho|+266
+LR|Liberia|+231
+LY|Libya|+218
+LI|Liechtenstein|+423
+LT|Lithuania|+370
+LU|Luxembourg|+352
+MO|Macao|+853
+MG|Madagascar|+261
+MW|Malawi|+265
+MY|Malaysia|+60
+MV|Maldives|+960
+ML|Mali|+223
+MT|Malta|+356
+MH|Marshall Islands|+692
+MQ|Martinique|+596
+MR|Mauritania|+222
+MU|Mauritius|+230
+YT|Mayotte|+262
+MX|Mexico|+52
+FM|Micronesia|+691
+MD|Moldova|+373
+MC|Monaco|+377
+MN|Mongolia|+976
+ME|Montenegro|+382
+MS|Montserrat|+1
+MA|Morocco|+212
+MZ|Mozambique|+258
+MM|Myanmar|+95
+NA|Namibia|+264
+NR|Nauru|+674
+NP|Nepal|+977
+NL|Netherlands|+31
+NC|New Caledonia|+687
+NZ|New Zealand|+64
+NI|Nicaragua|+505
+NE|Niger|+227
+NG|Nigeria|+234
+NU|Niue|+683
+NF|Norfolk Island|+672
+KP|North Korea|+850
+MK|North Macedonia|+389
+MP|Northern Mariana Islands|+1
+NO|Norway|+47
+OM|Oman|+968
+PK|Pakistan|+92
+PW|Palau|+680
+PS|Palestine|+970
+PA|Panama|+507
+PG|Papua New Guinea|+675
+PY|Paraguay|+595
+PE|Peru|+51
+PH|Philippines|+63
+PL|Poland|+48
+PT|Portugal|+351
+PR|Puerto Rico|+1
+QA|Qatar|+974
+RE|Réunion|+262
+RO|Romania|+40
+RU|Russia|+7
+RW|Rwanda|+250
+BL|Saint Barthélemy|+590
+SH|Saint Helena|+290
+KN|Saint Kitts and Nevis|+1
+LC|Saint Lucia|+1
+MF|Saint Martin|+590
+PM|Saint Pierre and Miquelon|+508
+VC|Saint Vincent and the Grenadines|+1
+WS|Samoa|+685
+SM|San Marino|+378
+ST|Sao Tome and Principe|+239
+SA|Saudi Arabia|+966
+SN|Senegal|+221
+RS|Serbia|+381
+SC|Seychelles|+248
+SL|Sierra Leone|+232
+SG|Singapore|+65
+SX|Sint Maarten|+1
+SK|Slovakia|+421
+SI|Slovenia|+386
+SB|Solomon Islands|+677
+SO|Somalia|+252
+ZA|South Africa|+27
+KR|South Korea|+82
+SS|South Sudan|+211
+ES|Spain|+34
+LK|Sri Lanka|+94
+SD|Sudan|+249
+SR|Suriname|+597
+SJ|Svalbard and Jan Mayen|+47
+SE|Sweden|+46
+CH|Switzerland|+41
+SY|Syria|+963
+TW|Taiwan|+886
+TJ|Tajikistan|+992
+TZ|Tanzania|+255
+TH|Thailand|+66
+TL|Timor-Leste|+670
+TG|Togo|+228
+TK|Tokelau|+690
+TO|Tonga|+676
+TT|Trinidad and Tobago|+1
+TN|Tunisia|+216
+TR|Türkiye|+90
+TM|Turkmenistan|+993
+TC|Turks and Caicos Islands|+1
+TV|Tuvalu|+688
+UG|Uganda|+256
+UA|Ukraine|+380
+AE|United Arab Emirates|+971
+GB|United Kingdom|+44
+US|United States|+1
+UY|Uruguay|+598
+UZ|Uzbekistan|+998
+VU|Vanuatu|+678
+VA|Vatican City|+39
+VE|Venezuela|+58
+VN|Vietnam|+84
+VG|Virgin Islands, British|+1
+VI|Virgin Islands, U.S.|+1
+WF|Wallis and Futuna|+681
+EH|Western Sahara|+212
+YE|Yemen|+967
+ZM|Zambia|+260
+ZW|Zimbabwe|+263`.split('\n').map(line=>{const [iso,name,code]=line.split('|');return {iso,name,code}});
+function populatePhoneCodes(selectId, defaultIso){
+ const select=document.getElementById(selectId);
+ countryCallingCodes.forEach(c=>{const option=document.createElement('option');option.value=c.iso;option.textContent=`${c.name} (${c.code})`;option.dataset.code=c.code;select.appendChild(option)});
+ select.value=defaultIso;
+ select.addEventListener('change',update);
+}
+function formattedPhone(codeId, phoneId){
+ const select=document.getElementById(codeId), phone=document.getElementById(phoneId);
+ const code=countryCallingCodes.find(c=>c.iso===select.value)?.code||'';
+ const number=phone.value.trim();
+ return number ? `${code} ${number}` : code;
+}
+populatePhoneCodes('senderPhoneCode','IN');
+populatePhoneCodes('receiverPhoneCode','US');
+
+ids.forEach(id=>{const el=document.getElementById(id);defaults[id]=el.value;el.addEventListener('input',update);el.addEventListener('change',update)});
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(n){const cur=document.getElementById('currency').value;try{return new Intl.NumberFormat('en-IN',{style:'currency',currency:cur,maximumFractionDigits:2}).format(n)}catch(e){return cur+' '+Number(n).toFixed(2)}}
+function numberToWordsIndian(value){
+ const ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+ const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+ function underThousand(n){let out='';if(n>=100){out+=ones[Math.floor(n/100)]+' Hundred';n%=100;if(n)out+=' ';}if(n>=20){out+=tens[Math.floor(n/10)];if(n%10)out+=' '+ones[n%10];}else if(n>0)out+=ones[n];return out;}
+ if(!Number.isFinite(value)||value<0)return 'Zero';
+ let n=Math.floor(value),parts=[];
+ for(const [size,label] of [[10000000,'Crore'],[100000,'Lakh'],[1000,'Thousand']]){if(n>=size){const q=Math.floor(n/size);parts.push(numberToWordsIndian(q)+' '+label);n%=size;}}
+ if(n)parts.push(underThousand(n));return parts.join(' ')||'Zero';
+}
+function amountInWords(amount,currency){
+ const currencyNames={INR:['Rupee','Paise'],USD:['US Dollar','Cent'],EUR:['Euro','Cent'],GBP:['Pound','Pence']};
+ const names=currencyNames[currency]||[currency,'Minor Unit'];
+ const rounded=Math.round((Number(amount)+Number.EPSILON)*100)/100;
+ const major=Math.floor(rounded),minor=Math.round((rounded-major)*100);
+ let result=numberToWordsIndian(major)+' '+names[0]+(major===1?'':'s');
+ if(minor)result+=' and '+numberToWordsIndian(minor)+' '+names[1]+(minor===1?'':'s');
+ return (result+' Only').toUpperCase();
+}
+function addItem(desc='',qty=1,rate=0){const row=document.createElement('div');row.className='item-row';row.innerHTML=`<input class="desc" aria-label="Description" placeholder="Goods description" value="${escapeHtml(desc)}"><input class="qty" aria-label="Quantity" type="number" min="0" step="1" value="${qty}"><input class="rate" aria-label="Rate" type="number" min="0" step=".01" value="${rate}"><span class="amount">0.00</span><button type="button" class="btn btn-light" aria-label="Remove item" style="padding:6px" onclick="this.parentElement.remove();update()">×</button>`;row.querySelectorAll('input').forEach(i=>i.addEventListener('input',update));document.getElementById('items').appendChild(row);update()}
+function update(){
+ ids.forEach(id=>{const el=document.getElementById(id);document.querySelectorAll(`[data-out="${id}"]`).forEach(o=>o.textContent=el.value||'—')});
+ const sender=document.getElementById('sender').value.split('\n');document.getElementById('outSenderName').textContent=sender.shift()||'';document.getElementById('outSender').textContent=sender.join('\n');document.getElementById('outSenderPhone').textContent='Phone: '+(formattedPhone('senderPhoneCode','senderPhone')||'—');
+ const receiver=document.getElementById('receiver').value.split('\n');document.getElementById('outReceiverName').textContent=receiver.shift()||'';document.getElementById('outReceiver').textContent=receiver.join('\n');document.getElementById('outReceiverPhone').textContent='Phone: '+(formattedPhone('receiverPhoneCode','receiverPhone')||'—');
+ let total=0,rows='';document.querySelectorAll('.item-row').forEach((r,i)=>{const d=r.querySelector('.desc').value;const q=Number(r.querySelector('.qty').value)||0;const rate=Number(r.querySelector('.rate').value)||0;const amount=q*rate;total+=amount;r.querySelector('.amount').textContent=amount.toFixed(2);rows+=`<tr><td>${i+1}. ${escapeHtml(d||'—')}</td><td class="num">${q}</td><td class="num">${money(rate)}</td><td class="num">${money(amount)}</td></tr>`});
+ document.getElementById('outItems').innerHTML=rows||'<tr><td colspan="4">No goods added</td></tr>';document.getElementById('subtotal').textContent=money(total);document.getElementById('total').textContent=money(total);
+ const words=amountInWords(total,document.getElementById('currency').value);
+ document.getElementById('amountWords').value=words;
+ document.getElementById('outWords').textContent=words;document.getElementById('outDeclaration').textContent=document.getElementById('declaration').value||'—';document.getElementById('outSignatory').textContent=document.getElementById('signatory').value;
+}
+function resetForm(){if(!confirm('Reset the invoice to the sample details?'))return;ids.forEach(id=>document.getElementById(id).value=defaults[id]);document.getElementById('senderPhoneCode').value='IN';document.getElementById('receiverPhoneCode').value='US';document.getElementById('items').innerHTML='';addItem('CLOTHS',1,2000);update()}
+document.getElementById('invoiceDate').value=new Date().toISOString().slice(0,10);
+addItem('CLOTHS',1,2000);update();
+</script>
+</body>
+</html>
